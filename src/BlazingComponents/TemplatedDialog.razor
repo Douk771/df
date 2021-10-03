@@ -1,0 +1,20 @@
+﻿@if (Show)
+{
+    <div class="dialog-container">
+        <div class="dialog">
+            @ChildContent
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public RenderFragment ChildContent { get; set; }
+    [Parameter] public bool Show { get; set; }
+    [Parameter] public EventCallback OnFocusOut { get; set; }
+
+    private void OverlayClick(FocusEventArgs args)
+    {
+        Show = false;
+    }
+    //@onfocusout="OverlayClick"
+}

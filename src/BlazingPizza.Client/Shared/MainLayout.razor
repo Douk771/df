@@ -1,0 +1,26 @@
+﻿@inherits LayoutComponentBase
+
+<div class="top-bar">
+    <a class="logo" href="">
+        <img src="img/logo.jpg" />
+    </a>
+</div>
+
+<div class="wrapper">
+<div class="content">
+    @Body
+</div>
+</div>
+
+<div class="bottom-bar">
+    <label style="color: white">© Dругой Fормат 2021</label>
+    <a href="https://www.instagram.com/dfbrn22" class="button5" style="content: url(@inst); position: relative; width: 20px; height: 20px; margin-left: 10px; margin-top: 3px"></a>
+    <a href="https://vk.com/drugoiformatbarnaul" class="button5" style="content: url(@vk); position: relative; width: 20px; height: 20px; margin-left: 10px; margin-top: 3px"></a>
+    <label style="color: white; margin-left: 10px">+7 (913)225-89-15</label>
+    </div>
+
+@code
+{
+    string inst = "img/menu/insta.png";
+    string vk = "img/menu/vk.svg";
+}

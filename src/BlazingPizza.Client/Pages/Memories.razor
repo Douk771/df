@@ -1,0 +1,28 @@
+﻿@page "/memories"
+@inject NavigationManager NavigationManager
+
+<div class="main">
+     <ul class="fest-cards">
+             @if (MenuItems != null)
+             {
+                 foreach (var menu in MenuItems)
+                 {
+                     <li @onclick='() => Navi(menu.PageUrl)' style="background-image: url('@menu.ImgUrl'); background-position: center"/>
+                 }
+             }
+     </ul>
+</div>
+
+    @code {
+    List<Menu> MenuItems = new()
+    {
+        new("img/menu/memories/1.jpg", "experts"),
+        new("img/menu/memories/2.jpg", "awards"),
+        new("img/menu/memories/3.jpg", "galleries"),
+    };
+
+    private void Navi(string linkAddress)
+    {
+        NavigationManager.NavigateTo($"{linkAddress}");
+    }
+}

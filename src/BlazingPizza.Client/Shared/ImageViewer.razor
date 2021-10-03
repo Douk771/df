@@ -1,0 +1,34 @@
+﻿<div class="wrapper">
+    <h3 style="margin-left: 15px">@Name</h3>
+    <img src=@selectedImage style="max-width: 96%;
+                                              height: auto; display: block;
+                                                                margin-left: auto;
+                                                                margin-right: auto;
+                                                                 position: center">
+    <div class="row profile-row" style="margin-left: 2%; margin-right: 2%; margin-top: 2%">
+        @foreach (var image in Images)
+        {
+            <div class="col-3">
+                <img src="@image" @onclick='() => ClickOnImage(image)'
+                     style="width:100%; padding-bottom:2%"/>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter] public List<string> Images { get; set; }
+    [Parameter] public string Name { get; set; }
+
+    string selectedImage;
+    
+    protected override void OnInitialized()
+    {
+        selectedImage = Images.FirstOrDefault() ?? "";
+    }
+
+    public void ClickOnImage(string urlImage)
+    {
+        selectedImage = urlImage;
+    }
+}

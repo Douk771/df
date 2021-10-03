@@ -1,0 +1,193 @@
+﻿@page "/checkout"
+@inject OrderState OrderState
+@inject OrdersClient OrdersClient
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
+@inject HttpClient HttpClient
+
+<div class="main">
+    <EditForm Model="OrderState.Order" OnValidSubmit="PlaceOrder" class="wrapper">
+        <div class="checkout-cols">
+            <div class="checkout-order-details">
+                <h4>Проект:</h4> 
+                @if (isSelectedProject)
+                {
+                    <p>
+                        <strong>@Order.Project.Name</strong>
+                    </p>
+                }
+                else
+                {
+                    <select class="custom-select" @onchange="ProjectSelected">
+                        <option value="-1" disabled selected>(select)</option>
+                        @for (var i = 0; i < projects.Count; i++)
+                        {
+                            <option value="@i">@projects[i].Name</option>
+                        }
+                    </select>
+                }
+                
+                <h4>Детали:</h4>
+                <div class="form-field">
+                    <label>Название коллектива:</label>
+                    <div>
+                        <InputText @bind-Value="Order.TeamName" />
+                        <ValidationMessage For="@(() => Order.TeamName)" />
+                    </div>
+                </div>
+                <div class="form-field">
+                    <label>Город:</label>
+                    <div>
+                        <InputText @bind-Value="Order.City"/>
+                        <ValidationMessage For="@(() => Order.City)"/>
+                    </div>
+                </div>
+                <div class="form-field">
+                    <label>ONLINE | OFFLINE:</label>
+                    <div>
+                        <InputCheckbox  @bind-Value="Order.IsOnline"/>
+                    </div>
+                </div>
+                <div class="form-field">
+                    <label>ФИО:</label>
+                    <div>
+                        <InputText @bind-Value="Order.FIOTeam"/>
+                        <ValidationMessage For="@(() => Order.FIOTeam)"/>
+                    </div>
+                </div>
+                <div class="form-field">
+                    <label>Название учреждения:</label>
+                    <div>
+                        <InputText @bind-Value="Order.NameOfInstitution"/>
+                        <ValidationMessage For="@(() => Order.NameOfInstitution)"/>
+                    </div>
+                </div>
+                <div class="form-field">
+                    <label>Жанр:</label>
+                    <div>
+                    <select @bind="Order.GenreId">
+                        @if (genres != null)
+                        {
+                            @foreach (var genre in genres)
+                            {
+                                <option value="@genre.Id">@genre.Name</option>
+                            }
+                        }
+                    </select>
+                    </div>
+                </div>
+                <div class="form-field">
+                    <label>Номинация:</label>
+                    <div>
+                        <select @bind="Order.NominationId">
+                            @if (nominations != null)
+                            {
+                                @foreach (var nomination in nominations)
+                                {
+                                    <option value="@nomination.Id">@nomination.Name</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="form-field">
+                    <label>Количество участников:</label>
+                    <div>
+                        <InputText @bind-Value="Order.QuantityPeople"/>
+                        <ValidationMessage For="@(() => Order.QuantityPeople)"/>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+
+        <button type="submit" class="checkout-button btn btn-warning" disabled="@isSubmitting">
+            Подать заявку
+        </button>
+
+        <DataAnnotationsValidator />
+    </EditForm>
+</div>
+
+@code {
+
+    Order Order => OrderState?.Order;
+
+    bool isSelectedProject => Order?.Project is not null;
+    bool isSubmitting;
+    List<Project> projects = new List<Project>();
+    List<Genre> genres = new List<Genre>();
+    List<Nomination> nominations = new List<Nomination>();
+    //string NameProject => Order?.Project is null ? "Пуст" : OrderState.Order.Project.Name;
+
+    protected override void OnInitialized()
+    {
+    // In the background, ask if they want to be notified about order updates
+        _ = RequestNotificationSubscriptionAsync();
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        projects = await HttpClient.GetFromJsonAsync<List<Project>>("projectsdata");
+        genres = await HttpClient.GetFromJsonAsync<List<Genre>>("genres");
+        nominations = await HttpClient.GetFromJsonAsync<List<Nomination>>("nominations");
+    }
+
+    async Task RequestNotificationSubscriptionAsync()
+    {
+        var subscription = await JSRuntime.InvokeAsync<NotificationSubscription>("blazorPushNotifications.requestSubscription");
+        if (subscription != null)
+        {
+            try
+            {
+                await OrdersClient.SubscribeToNotifications(subscription);
+            }
+            catch (AccessTokenNotAvailableException ex)
+            {
+                ex.Redirect();
+            }
+        }
+    }
+    
+    void ProjectSelected(ChangeEventArgs e)
+    {
+        if (int.TryParse((string)e.Value, out var index) && index >= 0)
+        {
+           Order.Project = projects[index];
+        }
+    }
+
+    async Task PlaceOrder()
+    {
+        isSubmitting = true;
+
+        try
+        {
+            var newOrderId = await OrdersClient.PlaceOrder(OrderState.Order);
+            OrderState.ResetOrder();
+            //NavigationManager.NavigateTo($"myorders/{newOrderId}");
+            NavigationManager.NavigateTo("");
+        }
+        catch (AccessTokenNotAvailableException ex)
+        {
+            ex.Redirect();
+        }
+    }
+    /*
+     @if (isSelectedProject)
+                {
+                    <select class="custom-select" @onchange="ProjectSelected">
+                        <option value="-1" disabled selected>(select)</option>
+                        @for (var i = 0; i < projects.Count; i++)
+                        {
+                            <option value="@i">@projects[i].Name</option>
+                        }
+                    </select>
+                }
+                else
+                {
+                    <p>
+                        <strong>@Order.Project.Name</strong>
+                    </p>
+                }
+     */
+}

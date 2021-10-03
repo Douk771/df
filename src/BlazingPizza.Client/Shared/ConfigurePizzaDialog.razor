@@ -1,0 +1,42 @@
+﻿@inject HttpClient HttpClient
+@inject OrderState OrderState
+
+<div class="project-title">
+        <div>
+            <img src="@Project.ImageUrl" style="max-width: 80%; height: auto; display: block;
+                                                margin-left: auto; margin-right: auto "/>
+            
+        </div>
+        <div class="dialog-title">
+            <h2>@Project.Name</h2>
+            @Project.DescriptionLite
+        </div>
+        <div>
+            <div class="dialog-buttons">
+                <a @onclick="OnCancel" style="color: red; background-color:#444">X</a>
+            </div>
+        </div>
+    </div>
+<form>
+    
+            <a href="checkout" class="@("btn btn-warning")" style="float: right">Подать заявку</a>
+            <label>@Project.Description</label>      
+       
+    
+    
+
+    <a href="dogovr.doc" download="pdf">
+        Загрузить
+    </a>
+</form>
+
+<div class="dialog-buttons">
+    <button href="" class="btn btn-warning mr-auto">На главную</button> 
+    <button class="btn btn-warning mr-auto" @onclick="OnCancel" style="float: right">К проектам</button> 
+</div>
+
+@code {
+    [Parameter] public Project Project { get; set; }
+    [Parameter] public EventCallback OnCancel { get; set; }
+    [Parameter] public EventCallback OnConfirm { get; set; }
+}

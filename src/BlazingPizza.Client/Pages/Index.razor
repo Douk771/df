@@ -1,0 +1,40 @@
+﻿@page "/"
+@inject NavigationManager NavigationManager
+
+<div class="main">
+    <div style="margin-bottom: 7px">
+        <a href="shop" class="@("btn btn-warning")">Shop DF</a>
+        <a href="checkout" class="@("btn btn-warning")" style="float: right">Подать заявку</a>
+    </div>
+    <img src="img/menu/21-22.jpg" style="max-width: 96%;
+                                                  height: auto; display: block;
+                                                                    margin-left: auto;
+                                                                    margin-right: auto;
+                                                                     position: center;
+margin-bottom: 7px">
+    <ul class="menu-cards">
+        @if (MenuItems != null)
+        {
+            foreach (var menu in MenuItems)
+            {
+                <li @onclick='() => Navi(menu.PageUrl)'
+                    style="background-image: url('@menu.ImgUrl'); background-position: center;"/>
+            }
+        }
+    </ul>
+</div>
+
+@code {
+    List<Menu> MenuItems = new()
+    {
+        new("img/menu/1-projects.jpg", "projects"),
+        new("img/menu/4-teams.jpg", "teams"),
+        new("img/menu/3.jpg", "memories"),
+        new("img/menu/2.jpg", "teams"),
+    };
+
+    private void Navi(string linkAddress)
+    {
+        NavigationManager.NavigateTo($"{linkAddress}");
+    }
+}

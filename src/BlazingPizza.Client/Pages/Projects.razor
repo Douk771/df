@@ -1,0 +1,42 @@
+﻿@page "/projects"
+@inject HttpClient HttpClient
+@inject OrderState OrderState
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JS
+
+<div class="main">
+    <a href="checkout" class="@("btn btn-warning")">Подать заявку</a>
+    <ul class="fest-cards">
+        @if (projects != null)
+        {
+            @foreach (var special in projects)
+            {
+                <li @onclick="@(() => OrderState.ShowConfigurePizzaDialog(special))" style="background-image: url('@special.ImageUrl'); background-position: center">
+                    <div class="pizza-info">
+                        <span class="title">@special.Name</span>
+                        @special.DescriptionLite
+                        <span class="price">@special.GetFormattedBaseDate()</span>
+                    </div>
+                </li>
+            }
+        }
+    </ul>
+</div>
+
+<TemplatedDialog Show="OrderState.ShowingConfigureDialog">
+    <ConfigurePizzaDialog
+        Project="OrderState.ConfiguringFestival"
+        OnCancel="OrderState.CancelConfigurePizzaDialog"
+        OnConfirm="OrderState.ConfirmConfigurePizzaDialog" />
+</TemplatedDialog>
+
+@code {
+    List<Project> projects;
+    Order Order => OrderState.Order;
+
+    protected override async Task OnInitializedAsync()
+    {
+        projects = await HttpClient.GetFromJsonAsync<List<Project>>("projectsdata");
+    }
+    //href="checkout" class="@(Order.Pizzas.Count == 0 ? "btn btn-warning disabled" : "btn btn-warning")"
+}
